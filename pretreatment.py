@@ -118,10 +118,14 @@ def cut_img(img, seq_info, frame_name, pid):
 
 
 def cut_pickle(seq_info, pid):
+
     seq_name = '-'.join(seq_info)
     log_print(pid, START, seq_name)
-    seq_path = os.path.join(INPUT_PATH, *seq_info)
-    out_dir = os.path.join(OUTPUT_PATH, *seq_info)
+    if INPUT_PATH.split('/')[-1] == 'test_probe':
+        seq_path = os.path.join(INPUT_PATH, seq_info[-1])
+    else:
+        seq_path = os.path.join(INPUT_PATH, *seq_info)
+    out_dir = os.path.join(OUTPUT_PATH, seq_info[0], '01', seq_info[1])
     frame_list = os.listdir(seq_path)
     frame_list.sort()
     count_frame = 0
@@ -131,7 +135,7 @@ def cut_pickle(seq_info, pid):
         img = cut_img(img, seq_info, _frame_name, pid)
         if img is not None:
             # Save the cut img
-            save_path = os.path.join(out_dir, '01', _frame_name)
+            save_path = os.path.join(out_dir, _frame_name)
             cv2.imwrite(save_path, img)
             count_frame += 1
     # Warn if the sequence contains less than 5 frames
@@ -157,25 +161,31 @@ print('Pretreatment Start.\n'
       'Worker num: %d' % (
           INPUT_PATH, OUTPUT_PATH, LOG_PATH, WORKERS))
 
-id_list = os.listdir(INPUT_PATH)
-id_list.sort()
+if INPUT_PATH.split('/')[-1] == 'test_probe':
+    id_list = ['9999']
+else:
+    id_list = os.listdir(INPUT_PATH)
+    id_list.sort()
 # Walk the input path
 for _id in id_list:
-    seq_type = os.listdir(os.path.join(INPUT_PATH, _id))
-    seq_type.sort()
-    for _seq_type in seq_type:
-        view = os.listdir(os.path.join(INPUT_PATH, _id, _seq_type))
+    # seq_type = os.listdir(os.path.join(INPUT_PATH, _id))
+    # seq_type.sort()
+    # for _seq_type in seq_type:
+    if INPUT_PATH.split('/')[-1] == 'test_probe':
+        view = os.listdir(INPUT_PATH)
+    else:
+        view = os.listdir(os.path.join(INPUT_PATH, _id))
         view.sort()
-        for _view in view:
-            seq_info = [_id, _seq_type, _view]
-            out_dir = os.path.join(OUTPUT_PATH, *seq_info)
-            os.makedirs(out_dir)
-            results.append(
-                pool.apply_async(
-                    cut_pickle,
-                    args=(seq_info, pid)))
-            sleep(0.02)
-            pid += 1
+    for _view in view:
+        seq_info = [_id, _view]
+        out_dir = os.path.join(OUTPUT_PATH, seq_info[0], '01', seq_info[1])
+        os.makedirs(out_dir)
+        results.append(
+            pool.apply_async(
+                cut_pickle,
+                args=(seq_info, pid)))
+        sleep(0.02)
+        pid += 1
 
 pool.close()
 unfinish = 1

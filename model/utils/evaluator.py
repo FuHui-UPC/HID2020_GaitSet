@@ -31,7 +31,7 @@ def evaluation(probe, gallery, valid = False):
         dic[seq_id[i]] = seq_gait_id[i]
         
     if valid:
-        f = open('../../dataset/labels.pkl', 'rb')
+        f = open('../dataset/labels.pkl', 'rb')
         labels = pickle.load(f)
         f.close()
         

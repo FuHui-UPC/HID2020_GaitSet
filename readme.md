@@ -1,4 +1,5 @@
 # HID2020 Gaitset
+This repository is based on [GaitSet](https://github.com/AbnerHqC/GaitSet)
 ## 1 datasets
 put the train dataset into __dataset/train__  
 put the test probe dataset into __dataset/test_probe__  
